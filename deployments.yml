@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${ENVIRONMENT}-${KUBE_SERVICE}
+  namespace: ${ENVIRONMENT}-${KUBE_NAMESPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${ENVIRONMENT}-${KUBE_SERVICE}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: ${ENVIRONMENT}-${KUBE_SERVICE}
+    spec:
+      containers:
+        - name: ${ENVIRONMENT}-${KUBE_SERVICE}
+          image: "${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/${ENVIRONMENT}-${KUBE_SERVICE}:${BUILD_NUMBER}"
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: ENVIRONMENT
+              value: ${ENVIRONMENT}
+            - name: ENDPOINT_BM_BROKER_COLETOR
+              value: ${DEV_ENDPOINT_BROKER_COLETOR}
+            - name: ENDPOINT_RESOURCE_BM_BROKER_COLETOR
+              value: '${DEV_ENDPOINT_RESOURCE_BROKER_COLETOR}'
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: '${OTEL_EXPORTER_OTLP_ENDPOINT}'
+            - name: 'OTEL_EXPORTER_OTLP_PROTOCOL'
+              value: '${OTEL_EXPORTER_OTLP_PROTOCOL}'
+            - name: 'OTEL_RESOURCE_ATTRIBUTES'
+              value: '${OTEL_RESOURCE_ATTRIBUTES}=${ENVIRONMENT}'   
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: ${HEALTHCHECK_PATH}
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+          resources:
+            limits:
+              cpu: 300m
+              memory: 400Mi
+            requests:
+              cpu: 150m
+              memory: 200Mi
+      terminationGracePeriodSeconds: 300

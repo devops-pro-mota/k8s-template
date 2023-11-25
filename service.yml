@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${ENVIRONMENT}-${KUBE_SERVICE}
+  namespace: ${ENVIRONMENT}-${KUBE_NAMESPACE}
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: ${HEALTHCHECK_PATH}
+    alb.ingress.kubernetes.io/success-codes: '200'
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: ${ENVIRONMENT}-${KUBE_SERVICE}
+  type: NodePort
