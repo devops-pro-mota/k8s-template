@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: ${ENVIRONMENT}-${KUBE_SERVICE}
-          image: "${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/${ENVIRONMENT}-${KUBE_SERVICE}:${BUILD_NUMBER}"
+          image: "rodrigomotadevops/${ENVIRONMENT}-${KUBE_SERVICE}:latest"
           imagePullPolicy: "IfNotPresent"
           env:
             - name: ENVIRONMENT
